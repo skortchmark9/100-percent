@@ -14,11 +14,12 @@ class Papi(object):
                 self.cache[url] = False
 
             data = ujson.loads(resp)
-            if not data['status'] == 'ERROR' and not data['type'] == 'redirect' and 'result' in data:
+            if not data['status'] == 'ERROR' and 'result' in data and 'data_type' in data['result'] and data['result']['data_type'] == 'article':
                 self.cache[url] = True
             else:
                 self.cache[url] = False
-
+        else:
+            print('cache hit')
         return self.cache[url]
 
 class Tagger(object):
