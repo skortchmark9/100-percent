@@ -1,19 +1,44 @@
 import requests
-import json
+import ujson
 from requests.auth import HTTPDigestAuth
 
-def get_tags(url):
-    resp = requests.get(papify(url),  auth=HTTPDigestAuth('human', 'R3plicant')).text
-    if not resp:
-        return None
 
-    papi = json.loads(resp)
-    if papi and not papi['status'] == 'ERROR' and not papi['type'] == 'redirect':
-        try:
-            tags = papi['result']['catalogue_keywords']
-        except Exception as e:
-            print(papi)
+class Papi(object):
+    def __init__(self):
+        self.cache = {}
 
+    def get_url(self, url):
+        if not url in self.cache:
+            resp = requests.get(papify(url),  auth=HTTPDigestAuth('human', 'R3plicant')).text
+            if not resp:
+                self.cache[url] = False
+
+            data = ujson.loads(resp)
+            if not data['status'] == 'ERROR' and 'result' in data and 'data_type' in data['result'] and data['result']['data_type'] == 'article':
+                self.cache[url] = True
+            else:
+                self.cache[url] = False
+        else:
+            print('cache hit')
+        return self.cache[url]
+
+class Tagger(object):
+    def __init__(self):
+        self.cache = {}
+
+    def get_tags(self, url):
+        if not url in self.cache:
+            resp = requests.get(papify(url),  auth=HTTPDigestAuth('human', 'R3plicant')).text
+            if not resp:
+                self.cache[url] = False
+
+            data = ujson.loads(resp)
+            if not data['status'] == 'ERROR' and not data['type'] == 'redirect' and 'result' in data:
+                self.cache[url] = data['result']['catalogue_keywords']
+            else:
+                self.cache[url] = False
+
+        return self.cache[url]
 
 def papify(url):
     papi = 'http://cms-publishapi.prd.nytimes.com/v1/publish/scoop/'
