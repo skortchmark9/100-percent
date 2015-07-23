@@ -1,16 +1,7 @@
 import networkx as nx 
 from operator import itemgetter
-
-
-G = nx.Graph()
-
-docs  = ['a','b','c','d','e','f']
-users = ['Sam','Muanis','Mike','Avery','Dan']
-
-G.add_nodes_from(docs,node_type='doc')
-G.add_nodes_from(users,node_type='user')
-G.add_edges_from([('a','Sam'),('b','Muanis'),('c','Mike'),('Avery','d'),('Dan','e'),('Dan','f'),
-				  ('Muanis','a'),('Muanis','d'),('d','Mike'),('Avery','b'),('Sam','e')])
+import matplotlib.pyplot as plt
+import random
 
 def distribute(G, v, node_type=None):
     if G.node[v]['resource'] == 0.0:
@@ -41,8 +32,16 @@ def get_recs(G,v,topn=15):
 	return filter(lambda s: s not in set(G.neighbors(v)), recs)[:topn]
 
 
-import matplotlib.pyplot as plt
-import random
+"""
+G = nx.Graph()
+
+docs  = ['a','b','c','d','e','f']
+users = ['Sam','Muanis','Mike','Avery','Dan']
+
+G.add_nodes_from(docs,node_type='doc')
+G.add_nodes_from(users,node_type='user')
+G.add_edges_from([('a','Sam'),('b','Muanis'),('c','Mike'),('Avery','d'),('Dan','e'),('Dan','f'),
+				  ('Muanis','a'),('Muanis','d'),('d','Mike'),('Avery','b'),('Sam','e')])
 
 pos = {}
 for d in docs:
@@ -50,9 +49,46 @@ for d in docs:
 for u in users:
 	pos[u] = (random.random(),0.0)
 
-
 nx.draw(G,pos,nodelist=(docs), node_color='r',node_shape='s')
 nx.draw(G,pos,nodelist=(users),node_color='b',node_shape='o')
 plt.show()
+"""
+
+
+
+
+G = nx.Graph()
+
+regi = '16177164'
+G.add_node(regi,node_type='user')
+
+import time
+import memcache
+mc = memcache.Client(['127.0.0.1:11211'], debug=0)
+counter = 0
+
+while True:
+    time.sleep(3)
+    
+    key = 'chunk' + str(counter)
+    result = mc.get(key)
+    print(key, result)
+    if result:
+    	nodes = map(list, zip(*result))
+    	G.add_nodes_from(nodes[0],node_type='doc')
+    	G.add_nodes_from(nodes[1],node_type='user')
+    	G.add_edges_from(result)
+
+    	print get_recs(G,regi,1)
+
+        counter += 1
+
+
+
+
+
+
+
+
 
 
