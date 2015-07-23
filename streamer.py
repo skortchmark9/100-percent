@@ -1,7 +1,9 @@
 import nsq
 import ujson
-import papi
 import memcache
+import re
+
+pattern = re.compile(r'^htt[ps]+:\/\/www\.nytimes.com\/[\d][\d][\d][\d]\/[\d][\d]\/[\d][\d]\/.+\.html')
 
 class Streamer(nsq.Reader):
     """Chunks 4 Jake"""
@@ -11,7 +13,6 @@ class Streamer(nsq.Reader):
             nsqd_tcp_addresses=['bigwheel.nytlabs.com:8888'],
             topic='event_tracker-page', channel='samuel.kortchmar#ephemeral', lookupd_poll_interval=15)
         self.chunk = []
-        self.p = papi.Papi()
         self.mc = memcache.Client(['127.0.0.1:11211'], debug=0)
         self.MAX_CHUNK_SIZE = 20
         self.chunks = 0
@@ -28,9 +29,14 @@ class Streamer(nsq.Reader):
     def handler(self, message):
         data = ujson.loads(message.body)
         url = data['url']
+        match = re.search(pattern, url)
+        if not match:
+            print('throw away')
+            return True
+
         user = data['regi']
 
-        if url and user and self.p.get_url(url):
+        if url and user:
             print('chunking')
             self.chunk.append((url, user))
             self.CURRENT_CHUNK_SIZE += 1
