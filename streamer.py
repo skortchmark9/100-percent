@@ -15,34 +15,32 @@ class Streamer(nsq.Reader):
         self.chunk = []
         self.mc = memcache.Client(['127.0.0.1:11211'], debug=0)
         self.MAX_CHUNK_SIZE = 20
-        self.chunks = 0
         self.CURRENT_CHUNK_SIZE = 0
         nsq.run()
 
     def save_chunk(self):
-        print('chunk' + str(self.chunk))
-        self.mc.set('chunk' + str(self.chunks), self.chunk)
+        num_chunks = self.mc.get('num_chunks') or 0
+        key = 'chunk' + str(num_chunks)
+        print(key)
+        self.mc.set(key, self.chunk)
+        self.mc.incr('num_chunks')
         self.chunk = []
         self.CURRENT_CHUNK_SIZE = 0
-        self.chunks += 1
 
     def handler(self, message):
         data = ujson.loads(message.body)
         url = data['url']
         match = re.search(pattern, url)
         if not match:
-            print('throw away')
             return True
 
         user = data['regi']
 
         if url and user:
-            print('chunking')
             self.chunk.append((url, user))
             self.CURRENT_CHUNK_SIZE += 1
 
         if (self.CURRENT_CHUNK_SIZE == self.MAX_CHUNK_SIZE):
-            print('saving')
             self.save_chunk()
 
 
