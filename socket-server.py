@@ -1,19 +1,18 @@
 from tornado import websocket
 import tornado.ioloop
 import tornado.web
+import json
 
 class EchoWebSocket(websocket.WebSocketHandler):
     def open(self):
         print("WebSocket opened")
 
     def on_message(self, message):
-        self.write_message(u"You said: " + message)
+        json_data=open('miserables.json').read()
+        self.write_message(json_data)
 
     def on_close(self):
         print("WebSocket closed")
-
-
-
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
