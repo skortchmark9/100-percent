@@ -99,7 +99,7 @@ while True:
 
         counter += 1
     else:
-    	recs = get_recs(G,regi,5)
+    	recs = list(get_recs(G,regi,5))
     	#print G.neighbors(regi)
     	#print recs
 
@@ -107,10 +107,16 @@ while True:
     	N = G.neighbors(regi)
     	NN = reduce(lambda a,b: a+b, map(lambda u: G.neighbors(u),N))
     	NNN = reduce(lambda a,b: a+b, map(lambda u: G.neighbors(u),NN))
-    	H = G.subgraph([regi]+N+NN+NNN)
+    	H = G.subgraph([regi]+N+list(recs))#+NN)#+NNN)
     	H.node[regi]['group'] = '#000000'
     	for r in recs:
     		H.node[regi]['group'] = '#FFCC00'
+
+    	H.node[regi]['name'] = regi
+    	for u in N:
+    		H.node[u]['name'] = u
+    	for r in recs:
+    		H.node[r]['name'] = r
     	
     	data = json_graph.node_link_data(H)
     	with open('data.json', 'w') as outfile:
