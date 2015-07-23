@@ -103,14 +103,19 @@ while True:
     	#print G.neighbors(regi)
     	#print recs
 
+    	S = 100
+
     	u = regi
     	N = G.neighbors(regi)
     	NN = reduce(lambda a,b: a+b, map(lambda u: G.neighbors(u),N))
     	NNN = reduce(lambda a,b: a+b, map(lambda u: G.neighbors(u),NN))
-    	H = G.subgraph([regi]+N+list(recs))#+NN)#+NNN)
+    	H = G.subgraph([regi]+N+list(recs)+NN[:S])#+NN)#+NNN)
     	H.node[regi]['group'] = '#000000'
     	for r in recs:
-    		H.node[regi]['group'] = '#FFCC00'
+    		H.node[r]['group'] = '#FFCC00'
+    	for r in NN[:S]:
+    		H.node[r]['group'] = '#00FF00'
+
 
     	H.node[regi]['name'] = regi
     	for u in N:
