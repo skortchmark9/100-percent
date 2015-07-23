@@ -103,18 +103,20 @@ while True:
     	#print G.neighbors(regi)
     	#print recs
 
-    	S = 100
+    	S = 10
 
     	u = regi
     	N = G.neighbors(regi)
-    	NN = reduce(lambda a,b: a+b, map(lambda u: G.neighbors(u),N))
-    	NNN = reduce(lambda a,b: a+b, map(lambda u: G.neighbors(u),NN))
-    	H = G.subgraph([regi]+N+list(recs)+NN[:S])#+NN)#+NNN)
-    	H.node[regi]['group'] = '#000000'
+    	NN = reduce(lambda a,b: a[:S]+b[:S], map(lambda u: G.neighbors(u),N+recs))
+    	#NNN = reduce(lambda a,b: a+b, map(lambda u: G.neighbors(u),NN))
+    	H = G.subgraph(N+list(recs)+NN+[regi])#+NN)#+NNN)
+    	for r in N:
+    		H.node[r]['group'] = '#000000'
     	for r in recs:
     		H.node[r]['group'] = '#FFCC00'
-    	for r in NN[:S]:
+    	for r in NN:
     		H.node[r]['group'] = '#00FF00'
+    	H.node[regi]['group'] = '#000000'
 
 
     	H.node[regi]['name'] = regi
@@ -124,7 +126,7 @@ while True:
     		H.node[r]['name'] = r
     	
     	data = json_graph.node_link_data(H)
-    	with open('data.json', 'w') as outfile:
+    	with open('sdata.json', 'w') as outfile:
     		ujson.dump(data, outfile)
 
 
