@@ -59,7 +59,7 @@ plt.show()
 
 G = nx.Graph()
 
-regi = '16177164'
+regi = '16177164' # JAKE SOLOFF : 72218121
 G.add_node(regi,node_type='user')
 
 import time

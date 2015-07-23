@@ -11,7 +11,7 @@ class Streamer(nsq.Reader):
         super(Streamer, self).__init__(
             message_handler=self.handler,
             nsqd_tcp_addresses=['bigwheel.nytlabs.com:8888'],
-            topic='event_tracker-page', channel='samuel.kortchmar#ephemeral', lookupd_poll_interval=15)
+            topic='event_tracker-page', channel='jake.soloff#ephemeral', lookupd_poll_interval=15, max_in_flight=500)
         self.chunk = []
         self.mc = memcache.Client(['127.0.0.1:11211'], debug=0)
         self.MAX_CHUNK_SIZE = 20
