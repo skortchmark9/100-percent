@@ -1,6 +1,7 @@
 import requests
-import ujson
+import ujson, os
 from requests.auth import HTTPDigestAuth
+import cPickle as pickle
 
 
 class Papi(object):
@@ -25,6 +26,9 @@ class Papi(object):
 class Tagger(object):
     def __init__(self):
         self.cache = {}
+        if os.path.exists('cache.pkl'):
+            self.load_cache()
+        #print self.cache
 
     def get_tags(self, url):
         if not url in self.cache:
@@ -39,6 +43,15 @@ class Tagger(object):
                 self.cache[url] = False
 
         return self.cache[url]
+
+    def load_cache(self,fn='cache.pkl'):
+        with open(fn,'rb') as f:
+            self.cache = pickle.load(f)
+
+    def write_cache(self,fn='cache.pkl'):
+        with open(fn,'wb') as f:
+            pickle.dump(self.cache,f)
+
 
 def papify(url):
     papi = 'http://cms-publishapi.prd.nytimes.com/v1/publish/scoop/'

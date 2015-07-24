@@ -43,5 +43,4 @@ class Streamer(nsq.Reader):
         if (self.CURRENT_CHUNK_SIZE == self.MAX_CHUNK_SIZE):
             self.save_chunk()
 
-
         return True

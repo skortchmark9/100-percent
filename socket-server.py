@@ -8,7 +8,7 @@ class EchoWebSocket(websocket.WebSocketHandler):
         print("WebSocket opened")
 
     def on_message(self, message):
-        json_data=open('data.json').read()
+        json_data=open('data_test.json').read() # muanis
         self.write_message(json_data)
 
     def on_close(self):
